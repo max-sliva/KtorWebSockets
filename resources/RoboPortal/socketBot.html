@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	
+	<head>
+		<link rel="stylesheet"  href="bootstrap.css">
+		<link rel="stylesheet" href="main.css">
+		<script src="jquery.min.js"></script>
+		<script src="bootstrap.min.js"></script>
+<!--		<script src="/socket.io/socket.io.js"></script>-->
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+		<title>Чат-бот</title>
+		
+		<script>
+			let str = window.location.href
+			console.log('window info:', str)
+			let res = str.split("/")
+			ip_adress = res[2]
+			console.log('ip:', ip_adress)
+
+
+			var ws = new WebSocket("ws://"+ip_adress+"/")
+			ws.onopen = function () {
+				console.log('connection established')
+				ws.send("StartBot")
+			}
+			ws.onclose = function () {
+				console.log('connection closed')
+			}
+			ws.onerror = function (err) {
+				console.log('error: ', err)
+			}
+			ws.onmessage = function (message) {
+				var receivedData = message.data
+				console.log("receivedData = ", receivedData)
+				let textArea = document.getElementById("Text")
+				textArea.innerHTML = textArea.innerHTML + " <p style = 'color: green'>"+"Bot: "+receivedData
+			}
+		</script>
+	</head>
+	<body style="margin-left: 10px">
+		<div class="navbar">
+			<div class="container">
+				<ul class="pull-left">
+					<li><a href="index.html">Главная</a></li>
+				</ul>
+				<ul class="pull-right">
+					<li><a href="#">Структура сайта</a></li>
+					<li><a href="/Logout?login=Admin">Logout!</a></li>
+					<li><a href="help.html">Помощь</a></li>	
+				</ul>
+			</div>
+		</div>
+		<div style="margin-left: 10px; margin-top: 10px">
+<!--поле для ввода текста и кнопка, на метод onclick повешена функция sendText() -->
+			<input type="text" id="textToSend"> <button id="sendButton" onclick="sendText()">Send</button>
+		</div>
+		<script>
+			function sendText(){
+				let textToSend = document.getElementById("textToSend")
+				console.log("Text to send: ", textToSend.value)
+				ws.send(textToSend.value)
+				let textArea = document.getElementById("Text")
+				textArea.innerHTML = textArea.innerHTML +" <p style = 'color: blue'>"+"User: "+textToSend.value
+				textToSend.value = ""
+			}
+		</script>
+		<div id="Text">
+			Text:
+
+		</div>
+	</body>
+</html>				

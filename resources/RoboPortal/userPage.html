@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+	
+	<head>
+		<link rel="stylesheet"  href="bootstrap.css">
+		<link rel="stylesheet" href="main.css">
+		<script src="jquery.min.js"></script>
+		<script src="bootstrap.min.js"></script>
+<!--		<script src="/socket.io/socket.io.js"></script>-->
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+		<title>Мои устройства</title>
+		
+		<script>
+			function resizeIframe(obj) {
+				obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+			}
+			let devices = [];
+			var str = window.location.href;
+			var res = str.split("/");
+			ip_adress = res[2]
+			// var ws = new WebSocket("ws://localhost/");
+			var ws = new WebSocket("ws://"+ip_adress+"/");
+			ws.onopen = function () {
+				console.log('connection established')
+				ws.send("NeedDevices");
+			};
+			ws.onclose = function () {
+				console.log('connection closed')
+			};
+			ws.onerror = function (err) {
+				console.log('error: ', err)
+			};
+			ws.onmessage = function (message) {
+				var receivedData = message.data;
+				console.log("userData = ", receivedData);
+				var msg = JSON.parse(receivedData);
+				switch (msg.type) {
+					case "devices":
+						console.log("devices = ", msg.devices);
+						devices = msg.devices;
+						setDevicesOnLeftTab(devices);
+						// document.querySelector('#clientid').innerHTML += msg.devices[0].name;
+						break;
+				}
+				ws.send("ok");
+			};
+
+
+		</script>
+
+		<script type="text/javascript">
+			// 	var btn = document.createElement('image');
+			// 	var btn=document.getElementById('imgBut');
+			var btn = document.createElement("img");
+			btn.setAttribute("src", "Images/edit.png");
+			// 	elem.setAttribute("height", "768");
+			btn.setAttribute("width", "30");
+			btn.setAttribute("alt", "Редактировать");
+			btn.id="imgBut";
+			btn.title="Редактировать";
+			btn.style.cursor='pointer';
+			// var devices;
+			// try {
+			// 	socket = io.connect();
+			//
+			// 	socket.on('devicesForUser', data=>{
+			// 		console.log('devicesForUser = ', data);
+			// 		devices = data;
+			// 		setDevicesOnLeftTab(devices);
+			// 	});
+			//
+			//
+			// 	} catch (err) {
+			// 	console.log("Was error, once more!");
+			// }
+			
+			function setDevicesOnLeftTab(devicesArray){
+				var devicesTable = document.getElementById("deviceTable");
+				for (var i = 0; i < devicesArray.length; i++){
+					if 	(devicesArray[i].active === "true"){
+						var row = deviceTable.insertRow(1+i);
+						row.insertCell(0);
+						var cellDiv = document.createElement('div');
+						cellDiv.style.border = "thick solid #b5b5db";
+						cellDiv.innerHTML = devicesArray[i].name;
+						var thumb = document.createElement('div');
+						thumb.className = "thumbnail";
+						thumb.innerHTML = '<img src="Images/'+devicesArray[i].type+'.jpg" >';
+						thumb.style.marginBottom  = "0px";
+						cellDiv.appendChild(thumb);
+						var divForRadioButtons = document.createElement('div');
+						divForRadioButtons.style.marginTop= "0px";
+						var funkyradio = document.createElement('div');
+						funkyradio.className = "funkyradio";
+						var radio1 = document.createElement('div');
+						radio1.className = "funkyradio-primary";
+						var radio2 = document.createElement('div');
+						radio2.className = "funkyradio-primary";
+						//if 	(devicesArray[i].active === "true"){
+						//	radio1.innerHTML = '<input type="radio" name="radio'+i+'" id="radio1_'+i+'" checked //onclick = "deviceRadioClick(this);" value = "true"/>'+ 
+						//					'<label for="radio1_'+i+'">Вкл</label>'
+						//	radio2.innerHTML = '<input type="radio" name="radio'+i+'" id="radio2_'+i+'" onclick = //"deviceRadioClick(this);" value = "false"/>'+ 
+						//					'<label for="radio2_'+i+'">Выкл</label>'
+						//}
+						//else {
+							radio1.innerHTML = '<input type="radio" name="radio'+i+'" id="radio1_'+i+'"onclick = "deviceRadioClick(this);" value = "true"/>'+ 
+								'<label for="radio1_'+i+'"><img src="Images/add.png" alt="Yes" /></label>'
+							radio2.innerHTML = '<input type="radio" name="radio'+i+'" id="radio2_'+i+'" checked onclick = "deviceRadioClick(this);"  value = "false"/>'+ 
+								'<label for="radio2_'+i+'"><img src="Images/remove.png" alt="No" /></label>'
+						//}
+						funkyradio.appendChild(radio1);
+						funkyradio.appendChild(radio2);
+						cellDiv.appendChild(funkyradio);
+						
+						deviceTable.rows[1+i].cells[0].appendChild(cellDiv);
+						console.log("device[",i,"] = ",devicesArray[i].name);
+						
+					}
+				}
+			}
+			function deviceRadioClick(myRadio){
+				var radioID = myRadio.id;
+				var index_ = radioID.indexOf('_');
+				var myID = radioID.substring(index_+1, radioID.length);
+				console.log("radioClicked=",myID, " value = ", myRadio.value);
+				console.log("device = ",devices[myID].name);
+				if (myRadio.value==="true" && document.getElementById(devices[myID].name)===null) {
+//					console.log(document.getElementById(devices[myID].name));
+					var myHTML = devices[myID].name+".html";
+					var divDevice = document.createElement('div');
+					var divDeviceParent = document.createElement('div');
+					divDeviceParent.innerHTML = devices[myID].name;
+					
+					divDevice.style.marginLeft= "20px";
+					divDeviceParent.style.float = "left";
+					divDeviceParent.setAttribute("align", "center");
+					divDeviceParent.id = devices[myID].name;
+					divDevice.id = devices[myID].name+"_";
+					$('#rightDiv').append(divDeviceParent);
+//					$('#'+divDevice.id).load(myHTML);
+					divDeviceParent.appendChild(divDevice);
+					$('#'+divDevice.id).load(myHTML);
+					//$('#'+divDevice.id).append("<p>"+devices[myID].name+"</p>");
+				}
+				else if (myRadio.value==="false"){
+					console.log("remove = ",devices[myID].name);
+					$('#'+devices[myID].name).remove();
+				}
+//				var radioID = myRadio.id;
+//				var index_ = radioID.indexOf('_');
+//				var myID = radioID.substring(index_+1, radioID.length);
+//				console.log("radioClicked=",myID, " value = ", myRadio.value);
+//				console.log("device = ",devices[myID].name);
+//				socket.emit('deviceActive', {'deviceActive': myRadio.value, 'deviceName': devices[myID].name}); //send clicked device name and myRadio.value
+			}
+
+		</script>
+		
+	</head>
+	<body>
+		<div class="navbar">
+			<div class="container">
+				<ul class="pull-left">
+					<li><a href="index.html">Главная</a></li>
+				</ul>
+				<ul class="pull-right">
+					<li><a href="#">Структура сайта</a></li>
+					<li><a href="/Logout?login=Admin">Logout!</a></li>
+					<li><a href="help.html">Помощь</a></li>	
+				</ul>
+			</div>
+		</div>
+		
+		<div class="left" >
+			Устройства
+			<br>
+			<table	border="0" cellpadding="5" align="left" id = "deviceTable">
+				<tr>
+					<td>  <br> </td>
+				</tr>
+	            
+				<tr>
+					<td>  <br> </td>
+				</tr>
+			</table>
+			<script type="text/javascript">
+				// 		function showCreateProject() {
+				// 			document.getElementById("rightDiv").innerHTML='<object type="text/html" data="PageConstruct.jsp" ></object>';
+				// 		}
+				function showCreateProject() {
+					$('#rightDiv').load('PageConstruct.jsp');
+				}
+				function showMyProject(x) {
+					var prName=x.innerHTML;
+					console.log(prName);
+					// 			document.location.href="/RoboPortal2/CurrentProject?prName="+prName;
+					$('#rightDiv').load('project.jsp?prName='+prName);
+					var currentRow = x.closest('tr');
+					// 			console.log(currentRow
+					var td=currentRow.cells[1];
+					td.appendChild(btn);
+					// 				currentRow.cells[1].innerHTML = '<input type="button" value="Редактировать">';
+					// 			currentId = currentRow.cells[0].getElementsByTagName('input')[0].value;
+					btn.onclick = function(){
+						console.log('edit:'+prName); 
+					};
+				}
+				
+			</script>
+			
+		</div>
+		<div class="right" id="rightDiv">
+		<!-- <iframe src="/RGB_Matrix_1.html" seamless frameborder="0" scrolling="no" onload="resizeIframe(this)"></iframe> -->
+		</div>
+		
+	</body>
+</html>				

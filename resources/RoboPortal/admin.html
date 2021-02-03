@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>RobotLab AdminPage</title>
+		<link rel="stylesheet"  href="bootstrap.css">
+		<link rel="stylesheet" href="main.css">
+		<script src="jquery.min.js"></script>
+		<script src="bootstrap.min.js"></script>
+<!--		<script src="/socket.io/socket.io.js"></script>-->
+		<!-- 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
+		<!--     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> -->
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+		<script>
+			let str = window.location.href
+			console.log('window info:', str)
+			let res = str.split("/")
+			ip_adress = res[2]
+			console.log('ip:', ip_adress)
+			var msg
+			var ws = new WebSocket("ws://"+ip_adress+"/Users")
+			ws.onopen = function () {
+				console.log('connection established')
+				ws.send("GetUsers")
+			}
+			ws.onclose = function () {
+				console.log('connection closed')
+			}
+			ws.onerror = function (err) {
+				console.log('error: ', err)
+			}
+			ws.onmessage = function (message) {
+				var receivedData = message.data
+				console.log("receivedData = ", receivedData)
+				msg = JSON.parse(receivedData)
+				console.log("user0 = ", msg[0])
+				setUsersTable(msg)
+			}
+
+			var logins = [];
+		</script>
+	</head>
+	<body>
+		<div class="navbar">
+			<div class="container">
+				<ul class="pull-left">
+					<li><a href="index.html">Главная</a></li>
+				</ul>
+				<ul class="pull-right">
+					<li><a href="#">Структура сайта</a></li>
+					<li><a href="/Logout?login=Admin">Logout!</a></li>
+					<li><a href="help.html">Помощь</a></li>	
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6" align="center" >
+			</div>
+			<div class="col-xs-6" align="center" >
+			</div>
+		</div>
+		<script>
+			function addUser(user1){
+				console.log(user1);
+				var table = document.getElementById("usersTable");
+				var x = table.rows.length;
+				var row = table.insertRow(x-1);
+				var cell1 = row.insertCell(0);
+				cell1.innerHTML = user1.login;
+				logins[x-2] = user1.login;
+				cell1 = row.insertCell(1);
+				cell1.innerHTML = user1.fio;
+				cell1 = row.insertCell(2);
+				cell1.innerHTML = user1.status;
+				cell1 = row.insertCell(3);
+				cell1.innerHTML = user1.devices;
+				cell1 = row.insertCell(4);
+				cell1.innerHTML = user1.online;
+				console.log(logins);
+				setTimeout(function(){ 
+						console.log("1000 for new user");
+						window.location.href = "/admin.html";
+				}, 1000);	
+				//location.reload();
+			}
+			
+			function setUsersTable(usersArray){
+				console.log(usersArray.length);
+				var table = document.getElementById("usersTable");
+				for (var i = 0; i < usersArray.length; i++){	
+					var row = table.insertRow(1+i);
+					var cell1 = row.insertCell(0);
+					cell1.innerHTML = usersArray[i].login;
+					logins[i] = usersArray[i].login;
+					cell1 = row.insertCell(1);
+					cell1.innerHTML = usersArray[i].fio;
+					cell1 = row.insertCell(2);
+					cell1.innerHTML = usersArray[i].status;
+					cell1 = row.insertCell(3);
+					cell1.innerHTML = usersArray[i].devices;
+					cell1 = row.insertCell(4);
+					cell1.innerHTML = usersArray[i].online;
+					cell1 = row.insertCell(5);
+					var btn = document.createElement("img");
+					btn.setAttribute("src", "Images/edit.png");
+					// 	elem.setAttribute("height", "768");
+					btn.setAttribute("width", "30");
+					btn.setAttribute("alt", "Редактировать");
+					btn.id="imgBut";
+					btn.title="Редактировать";
+					btn.style.cursor='pointer';
+					cell1.appendChild(btn);
+					cell1 = row.insertCell(6);
+					var x = document.createElement("INPUT");
+					x.setAttribute("type", "radio");
+					x.setAttribute("width","30");
+					x.setAttribute("name", "radio1");
+					cell1.appendChild(x);
+					x.addEventListener("click", radioCLick);
+					//cell1.innerHTML = '<img src="Images/edit.png" height="30">';
+				}
+			}
+			function radioCLick(event) {
+				var source = event.target || event.srcElement;
+				let row = source.parentNode.parentNode.rowIndex;
+				console.log(row);
+				var uploadSubmit = document.getElementById("uploadSubmit");
+				var fileChooser = document.getElementById("myFile");
+				var curLogin = document.getElementById("usersTable").rows[row].cells[0].innerHTML;
+				console.log("curLogin = ",curLogin);
+				var loginForUpload = document.getElementById("userLogin");
+				loginForUpload.value = curLogin;
+				uploadSubmit.disabled = false;
+				fileChooser.disabled = false;
+			}
+
+			function setDevicesOnTab(devicesArray){ //show devices on tab
+				var devicesDiv = document.getElementById("devices");
+				while (devicesDiv.firstChild) {
+					devicesDiv.removeChild(devicesDiv.firstChild);
+				}
+				for (var i = 0; i < devicesArray.length; i++){
+					var element = document.createElement('div');
+					element.style.float = "left";
+					element.style.marginLeft= "10px";
+					var deviceName = "<p align = 'center'>"+devicesArray[i].name+"</p>";
+					element.innerHTML = deviceName;
+					var divForThumb = document.createElement('div');
+					divForThumb.style.float = "left";
+					var thumb = document.createElement('div');
+					thumb.className = "thumbnail";
+					thumb.innerHTML = '<img src="Images/'+devicesArray[i].type+'.jpg" >';
+					divForThumb.appendChild(thumb);
+					element.appendChild(divForThumb);
+					var divForRadioButtons = document.createElement('div');
+					divForRadioButtons.style.float = "left";
+					var funkyradio = document.createElement('div');
+					funkyradio.className = "funkyradio";
+					var radio1 = document.createElement('div');
+					radio1.className = "funkyradio-primary";
+					var radio2 = document.createElement('div');
+					radio2.className = "funkyradio-primary";
+					if 	(devicesArray[i].active === "true"){
+						radio1.innerHTML = '<input type="radio" name="radio'+i+'" id="radio1_'+i+'" checked onclick = "deviceRadioClick(this);" value = "true"/>'+ 
+										'<label for="radio1_'+i+'">Вкл</label>'
+						radio2.innerHTML = '<input type="radio" name="radio'+i+'" id="radio2_'+i+'" onclick = "deviceRadioClick(this);" value = "false"/>'+ 
+										'<label for="radio2_'+i+'">Выкл</label>'
+					}
+					else {
+						radio1.innerHTML = '<input type="radio" name="radio'+i+'" id="radio1_'+i+'"onclick = "deviceRadioClick(this);" value = "true"/>'+ 
+										'<label for="radio1_'+i+'">Вкл</label>'
+						radio2.innerHTML = '<input type="radio" name="radio'+i+'" id="radio2_'+i+'" checked onclick = "deviceRadioClick(this);"  value = "false"/>'+ 
+										'<label for="radio2_'+i+'">Выкл</label>'
+					}
+					
+					funkyradio.appendChild(radio1);
+					funkyradio.appendChild(radio2);
+					divForRadioButtons.appendChild(funkyradio);
+					element.appendChild(divForRadioButtons);
+					devicesDiv.appendChild(element);
+				}
+			}
+			
+			function deviceRadioClick(myRadio){
+				var radioID = myRadio.id;
+				var index_ = radioID.indexOf('_');
+				var myID = radioID.substring(index_+1, radioID.length);
+				console.log("radioClicked=",myID, " value = ", myRadio.value);
+				console.log("device = ",devices[myID].name);
+				socket.emit('deviceActive', {'deviceActive': myRadio.value, 'deviceName': devices[myID].name}); //send clicked device name and myRadio.value
+			}
+
+		</script>
+		<ul class="nav nav-tabs">
+		  <li class="active"><a data-toggle="tab" href="#users">Список пользователей</a></li>
+		  <li><a data-toggle="tab" href="#devices">Список устройств</a></li>
+		</ul>
+
+		<div class="tab-content">
+		  <div id="users" class="tab-pane fade in active">
+		<table	border="1" cellpadding="5" align="center" id = "usersTable">
+            <caption><h3 align="center">Пользователи </h3> </caption>
+            <tr> <th>Login</th> <th>FIO</th> <th>Status</th> <th>Devices</th> <th>online</th> </tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+					<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">Добавить пользователя</button>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>    
+		</table>
+		  </div>
+		<div id="devices" class="tab-pane fade">
+			<h3 align="center">Устройства</h3>
+		</div>
+		
+		<div id="myModal" class="modal fade" role="dialog" charset="UTF-8">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Новый пользователь</h4>
+					</div>
+					<form action="AddUser" method="post" accept-charset="UTF-8">
+						<div class="modal-body">
+							<p>Введите данные</p>
+							<label>ФИО:</label><input name="FIO" required placeholder="Иванов Иван Иванович" type="text" size="25" maxlength="25" 
+							accept-charset="UTF-8" autofocus><br />
+							<label>Статус:</label>
+							<select name="status">
+								<option value="User" selected>User</option>
+								<option value="Admin">Admin</option>
+							</select> <br />
+
+							<label>Логин:</label> <input id="login" name="login" pattern="[A-Za-z].+" placeholder="Начинается с буквы" type="text" size="15" maxlength="15" required>
+							<script>
+								$('#login').blur(function() {
+									var text = $(this).val();
+									//var obj = "${logins}";
+									var index;
+									//for (index = 0; index < obj.length; ++index) {
+									console.log(logins);
+									var n = logins.indexOf(text);
+									if (n==-1) {console.log("No")}
+									else {
+										console.log("Yes");
+										//alert("Такой логин уже есть!!");
+										document.getElementById("login").focus();
+										document.getElementById("login").value = "";
+										document.getElementById("login").placeholder = "Такой логин уже есть";
+									}
+									//	}							  
+								})
+							</script>
+							<br />
+							<label>пароль:</label> <input name="password" type="password" size="15" maxlength="15" required><br />
+						</div>
+						<div class="modal-footer">
+							<input type="submit" class="btn btn-default" value="Сохранить" > <!-- data-dismiss="modal" onclick="javascript: submit()"> -->
+							<button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+			<p>Сохранить в! </p>
+			<form action="ToMSOffice" method="post">
+				<input type="submit" class="btn btn-default" value="Excel" name="toOffice">
+				<input type="submit" class="btn btn-default" value="Word" name="toOffice">
+			</form>
+			<form action="Upload" method="post" enctype="multipart/form-data">
+				<input type="file" id="myFile" name="filename" disabled>
+				<input type="hidden" id="userLogin" name ="userLogin" value = "default">
+				<input type="submit" id="uploadSubmit" disabled>
+			</form>
+<!--			<input type="button" class="btn btn-default" value="Excel" onclick="toOffice('Excel')">-->
+<!--			<input type="button" class="btn btn-default" value="Word" onclick="toOffice('Word')">-->
+<!--			<script>-->
+<!--				function toOffice(param){-->
+<!--					console.log("toOffice = ", param)-->
+<!--					ws.send(param)-->
+<!--				}-->
+<!--			</script>-->
+	</body>
+</html>
