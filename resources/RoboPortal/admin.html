@@ -98,10 +98,15 @@
 					cell1 = row.insertCell(3);
 					cell1.innerHTML = usersArray[i].devices;
 					cell1 = row.insertCell(4);
-					cell1.innerHTML = usersArray[i].online;
+					var logo = document.createElement("img");
+					logo.setAttribute("src", "Images/"+usersArray[i].online);
+					console.log("logo.src = ",logo.src);
+					logo.setAttribute("width", "30");
+					cell1.appendChild(logo);
 					cell1 = row.insertCell(5);
 					var btn = document.createElement("img");
 					btn.setAttribute("src", "Images/edit.png");
+					console.log("edit.src = ",btn.src);
 					// 	elem.setAttribute("height", "768");
 					btn.setAttribute("width", "30");
 					btn.setAttribute("alt", "Редактировать");
@@ -109,7 +114,7 @@
 					btn.title="Редактировать";
 					btn.style.cursor='pointer';
 					cell1.appendChild(btn);
-					cell1 = row.insertCell(6);
+					cell1 = row.insertCell(6); //добавляем ячейку
 					var x = document.createElement("INPUT");
 					x.setAttribute("type", "radio");
 					x.setAttribute("width","30");
@@ -123,14 +128,12 @@
 				var source = event.target || event.srcElement;
 				let row = source.parentNode.parentNode.rowIndex;
 				console.log(row);
-				var uploadSubmit = document.getElementById("uploadSubmit");
-				var fileChooser = document.getElementById("myFile");
 				var curLogin = document.getElementById("usersTable").rows[row].cells[0].innerHTML;
 				console.log("curLogin = ",curLogin);
 				var loginForUpload = document.getElementById("userLogin");
 				loginForUpload.value = curLogin;
-				uploadSubmit.disabled = false;
-				fileChooser.disabled = false;
+				let uploadForm = document.getElementById("uploadForm");
+				uploadForm.style.display = "inline";
 			}
 
 			function setDevicesOnTab(devicesArray){ //show devices on tab
@@ -196,28 +199,45 @@
 		</ul>
 
 		<div class="tab-content">
-		  <div id="users" class="tab-pane fade in active">
-		<table	border="1" cellpadding="5" align="center" id = "usersTable">
-            <caption><h3 align="center">Пользователи </h3> </caption>
-            <tr> <th>Login</th> <th>FIO</th> <th>Status</th> <th>Devices</th> <th>online</th> </tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-					<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">Добавить пользователя</button>
-				</td>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-				</td>
-			</tr>    
-		</table>
+		  <div id="users" class="tab-pane fade in active" >
+			<div class="center">
+			  <div class="oneLine">
+				  <table border="1" cellpadding="5" align="center" id = "usersTable">
+					<caption><h3 align="center">Пользователи </h3> </caption>
+					<tr> <th>Login</th> <th>FIO</th> <th>Status</th> <th>Devices</th> <th>online</th> </tr>
+					<tr>
+						<td>
+						</td>
+						<td>
+							<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">Добавить пользователя</button>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+					</tr>
+				  </table>
+			  </div>
+			  <div align="center" class="oneLineForm" id="uploadForm">
+				  <form action="Upload" method="post" enctype="multipart/form-data">
+					  <input type="file" id="myFile" name="filename">
+					  <input type="hidden" id="userLogin" name ="userLogin" value = "default">
+					  <input type="submit" id="uploadSubmit">
+				  </form>
+			  </div>
+			</div>
+			  <p>Сохранить в! </p>
+			  <form action="ToMSOffice" method="post">
+				  <input type="submit" class="btn btn-default" value="Excel" name="toOffice">
+				  <input type="submit" class="btn btn-default" value="Word" name="toOffice">
+			  </form>
+
 		  </div>
-		<div id="devices" class="tab-pane fade">
-			<h3 align="center">Устройства</h3>
-		</div>
+			<div id="devices" class="tab-pane fade">
+				<h3 align="center">Устройства</h3>
+			</div>
 		
 		<div id="myModal" class="modal fade" role="dialog" charset="UTF-8">
 			<div class="modal-dialog">
@@ -269,16 +289,7 @@
 				</div>
 			</div>
 		</div>
-			<p>Сохранить в! </p>
-			<form action="ToMSOffice" method="post">
-				<input type="submit" class="btn btn-default" value="Excel" name="toOffice">
-				<input type="submit" class="btn btn-default" value="Word" name="toOffice">
-			</form>
-			<form action="Upload" method="post" enctype="multipart/form-data">
-				<input type="file" id="myFile" name="filename" disabled>
-				<input type="hidden" id="userLogin" name ="userLogin" value = "default">
-				<input type="submit" id="uploadSubmit" disabled>
-			</form>
+		</div>
 <!--			<input type="button" class="btn btn-default" value="Excel" onclick="toOffice('Excel')">-->
 <!--			<input type="button" class="btn btn-default" value="Word" onclick="toOffice('Word')">-->
 <!--			<script>-->

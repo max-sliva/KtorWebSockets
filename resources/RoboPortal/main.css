@@ -1,3 +1,18 @@
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.oneLine {
+    /*display:inline-block;*/
+    float:left;
+}
+.oneLineForm{
+    display: none;
+    float:left;
+}
 .slider {
     -webkit-appearance: none;
     width: 100%;
