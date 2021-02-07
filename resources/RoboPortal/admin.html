@@ -99,7 +99,7 @@
 					cell1.innerHTML = usersArray[i].devices;
 					cell1 = row.insertCell(4);
 					var logo = document.createElement("img");
-					logo.setAttribute("src", "Images/"+usersArray[i].online);
+					logo.setAttribute("src", "resources/UploadImages/"+usersArray[i].online);
 					console.log("logo.src = ",logo.src);
 					logo.setAttribute("width", "30");
 					cell1.appendChild(logo);
@@ -222,13 +222,13 @@
 			  </div>
 			  <div align="center" class="oneLineForm" id="uploadForm">
 				  <form action="Upload" method="post" enctype="multipart/form-data">
-					  <input type="file" id="myFile" name="filename">
+					  <input type="file" id="myFile" name="filename" accept="image/*">
 					  <input type="hidden" id="userLogin" name ="userLogin" value = "default">
 					  <input type="submit" id="uploadSubmit">
 				  </form>
 			  </div>
 			</div>
-			  <p>Сохранить в! </p>
+			  <p>Сохранить в!!! </p>
 			  <form action="ToMSOffice" method="post">
 				  <input type="submit" class="btn btn-default" value="Excel" name="toOffice">
 				  <input type="submit" class="btn btn-default" value="Word" name="toOffice">

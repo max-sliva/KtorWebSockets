@@ -1,3 +1,4 @@
+package com.example
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
 import com.mongodb.MongoClient
